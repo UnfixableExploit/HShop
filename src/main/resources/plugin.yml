@@ -1,0 +1,23 @@
+name: HShop
+main: fr.keke142.hshop.HShopPlugin
+version: ${project.version}
+author: keke142
+commands:
+  hshopreload:
+    default: op
+    permission: hshop.reload
+    description: Reload the plugin.
+  hshopadmin:
+    default: op
+    permission: hshop.admin
+    description: Defining the aim shop in AdminShop.
+  hshop:
+    default: op
+    permission: hshop.info
+    description: Retrieve information aimed shop.
+  hshopconvert:
+    default: op
+    permission: hshop.convert
+    description: Convert old datas to new datas.
+    
+    

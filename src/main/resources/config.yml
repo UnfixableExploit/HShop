@@ -1,0 +1,10 @@
+database:
+  inited: false
+  threads: 5
+  host: localhost
+  port: 3306
+  database: db
+  username: user
+  password: passw
+Language:
+  language-name: en
