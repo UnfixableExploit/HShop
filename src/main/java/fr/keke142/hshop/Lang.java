@@ -8,6 +8,7 @@ public enum Lang {
     FAILMETRICS("shop-failmetrics", "&cFailed to load Metrics."),
     FAILVAULT("shop-failvault", "&cFailed to load Vault."),
     TRYINGPOOL("shop-tryingpool", "&cTrying to enable database connection pool..."),
+    INVENTORYFULL("shop-inventoryfull", "&cYour inventory is full."),
     NOPERMISSION("shop-nopermission", "&cYou do not have permission."),
     SHOPCMD1("shop-cmd1", "&aThis shop belongs to &6%player."),
     SHOPCMD2("shop-cmd2", "&aIt contains &6%number %item:%data &anamed: &6%name &awith the durability &6%durability &aand enchantments: &6%enchants."),

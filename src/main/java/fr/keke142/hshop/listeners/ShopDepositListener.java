@@ -72,7 +72,7 @@ public class ShopDepositListener implements Listener {
           + Lang.NOENGOUTHITEM.toString().replaceAll("%number", "" + shop.getUnitAmount()));
       return;
     }
-    
+
     plugin.place.add(p);
     new BukkitRunnable() {
 
@@ -136,22 +136,21 @@ public class ShopDepositListener implements Listener {
         return;
       }
 
-      
+
       if (p.isSneaking()) {
         shop.addItem(p.getInventory().getItemInMainHand().getAmount());
         p.getInventory().setItemInMainHand(null);
-        
-      }
-      else {
+
+      } else {
         shop.addItem();
         if (handStack.getAmount() > shop.getUnitAmount()) {
           handStack.setAmount(handStack.getAmount() - shop.getUnitAmount());
         } else {
           p.getInventory().setItemInMainHand(null);
         }
-        
+
       }
-      
+
       shop.setPlayerName(p.getName());
       shopManager.saveShopItemCountAndPlayerName(shop);
 
@@ -168,8 +167,6 @@ public class ShopDepositListener implements Listener {
                       : "No Name").replaceAll("%durability", "" + stack.getDurability())
               .replaceAll("%enchants", "" + stack.getEnchantments()));
       return;
-
-
     }
   }
 

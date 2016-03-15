@@ -63,6 +63,12 @@ public class ShopWithdrawListener implements Listener {
       return;
     }
 
+    if (p.getInventory().firstEmpty() == -1) {
+      p.sendMessage(Lang.PREFIX.toString() + Lang.INVENTORYFULL.toString());
+      return;
+
+    }
+
     ItemStack item = HcGson.deserializeItemStack(shop.getItemSerialized());
     item.setAmount(shop.getUnitAmount());
     shop.substractItem();

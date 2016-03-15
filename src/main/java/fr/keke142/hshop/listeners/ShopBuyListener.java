@@ -60,12 +60,16 @@ public class ShopBuyListener implements Listener {
       if (p.getUniqueId().toString().contentEquals(shop.getPlayerUuid())) {
         return;
       }
+    }
 
+    if (shop.getItemCount() < shop.getUnitAmount()) {
+      p.sendMessage(Lang.PREFIX.toString() + Lang.NOMITEM.toString());
+      return;
+    }
 
-      if (shop.getItemCount() < shop.getUnitAmount()) {
-        p.sendMessage(Lang.PREFIX.toString() + Lang.NOMITEM.toString());
-        return;
-      }
+    if (p.getInventory().firstEmpty() == -1) {
+      p.sendMessage(Lang.PREFIX.toString() + Lang.INVENTORYFULL.toString());
+      return;
     }
 
     ItemStack stack = HcGson.deserializeItemStack(shop.getItemSerialized());
@@ -95,7 +99,7 @@ public class ShopBuyListener implements Listener {
                 .toString()
                 .replaceAll("%buyer", p.getName())
                 .replaceAll("%number", "" + shop.getUnitAmount())
-                .replaceAll("%item", "" + stack.getType())       
+                .replaceAll("%item", "" + stack.getType())
                 .replaceAll("%data", "" + stack.getData().getData())
                 .replaceAll(
                     "%name",
