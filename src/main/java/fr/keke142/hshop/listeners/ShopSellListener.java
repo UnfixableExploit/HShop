@@ -69,6 +69,25 @@ public class ShopSellListener implements Listener {
       }
     }
     
+    final ItemStack shopStackSell = handStack.clone();
+    shopStackSell.setAmount(shop.getUnitAmount());
+    String itemSerialized = HcGson.serializeItemStack(shopStackSell);
+    if (!itemSerialized.contentEquals(shop.getItemSerialized())) {
+      ItemStack stack = HcGson.deserializeItemStack(shop.getItemSerialized());
+      p.sendMessage(Lang.PREFIX
+          + Lang.INVALIDITEM
+              .toString()
+              .replaceAll("%number", "" + shop.getUnitAmount())
+              .replaceAll("%item", "" + stack.getType())
+              .replaceAll("%data", "" + stack.getData().getData())
+              .replaceAll(
+                  "%name",
+                  stack.getItemMeta().hasDisplayName() ? stack.getItemMeta().getDisplayName()
+                      : "No Name").replaceAll("%durability", "" + stack.getDurability())
+              .replaceAll("%enchants", "" + stack.getEnchantments()));
+      return;
+    }
+    
     plugin.place.add(p);
     new BukkitRunnable() {
 
@@ -80,7 +99,6 @@ public class ShopSellListener implements Listener {
     }.runTaskLater(this.plugin, 10);
 
     final ItemStack shopStack = HcGson.deserializeItemStack(shop.getItemSerialized());
-    String itemSerialized = HcGson.serializeItemStack(shopStack);
     if (!itemSerialized.contentEquals(shop.getItemSerialized())) {
       p.sendMessage(Lang.PREFIX
           + Lang.INVALIDITEM
