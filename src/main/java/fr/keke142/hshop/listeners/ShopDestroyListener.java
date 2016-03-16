@@ -39,7 +39,6 @@ public class ShopDestroyListener implements Listener {
     }
     if (!p.getUniqueId().toString().equals(shop.getPlayerUuid())) {
       e.setCancelled(true);
-      Bukkit.broadcastMessage("Invalid UUID: " + p.getUniqueId().toString() + " " + shop.getPlayerUuid());
       return;
     }
     
