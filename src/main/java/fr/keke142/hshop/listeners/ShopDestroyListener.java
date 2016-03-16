@@ -41,7 +41,7 @@ public class ShopDestroyListener implements Listener {
       e.setCancelled(true);
       return;
     }
-    
+
     shopManager.destroyShop(shop);
     e.getPlayer().sendMessage(
         Lang.PREFIX.toString()
@@ -61,24 +61,25 @@ public class ShopDestroyListener implements Listener {
   @EventHandler
   public void onBlockPhysics(BlockPhysicsEvent e) {
     Block b = e.getBlock();
+    if (b.getType() != Material.WALL_SIGN || b.getType() != Material.SIGN_POST) {
+      return;
+    }
+
     Shop shop = shopManager.getShopAt(b.getLocation());
     if (shop == null) {
       return;
     }
-    if (b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST) {
-      Sign s = (Sign) b.getState().getData();
-      Block attachedBlock = b.getRelative(s.getAttachedFace());
-      if (attachedBlock.getType() == Material.AIR) {
-        shopManager.destroyShop(shop);
-        ItemStack stack = HcGson.deserializeItemStack(shop.getItemSerialized());
-        stack.setAmount(shop.getItemCount());
-        if (shop.getItemCount() <= 0) {
-          return;
-        }
-        Bukkit.getWorld(shop.getWorldName()).dropItemNaturally(b.getLocation(), stack);
-
+    Sign s = (Sign) b.getState().getData();
+    Block attachedBlock = b.getRelative(s.getAttachedFace());
+    if (attachedBlock.getType() == Material.AIR) {
+      shopManager.destroyShop(shop);
+      ItemStack stack = HcGson.deserializeItemStack(shop.getItemSerialized());
+      stack.setAmount(shop.getItemCount());
+      if (shop.getItemCount() <= 0) {
+        return;
       }
+      Bukkit.getWorld(shop.getWorldName()).dropItemNaturally(b.getLocation(), stack);
+
     }
   }
-
 }
