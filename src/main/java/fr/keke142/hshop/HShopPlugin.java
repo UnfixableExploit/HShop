@@ -40,24 +40,24 @@ public class HShopPlugin extends JavaPlugin {
   private ConfigManager configManager;
   private ShopManager shopManager;
   private DatabaseManager databaseManager;
-  
+
   private ShopAdminCommand shopadminCommand;
   private ShopReloadCommand shopreloadCommand;
   private ShopCommand shopCommand;
   private ShopConvertCommand shopconvertCommand;
-  
+
   private Economy econ;
 
-  private String LangName;
+  private String pluginName = getDescription().getName();
 
-  public static YamlConfiguration LANG;
-  public static File LANG_FILE;
+  private ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
 
-  private String PluginName = getDescription().getName();
-
-  public ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
+  private ArrayList<Player> place = new ArrayList<Player>();
   
-  public ArrayList<Player> place = new ArrayList<Player>();
+  private String langName;
+  
+  private YamlConfiguration LANG;
+  private File LANG_FILE;
 
   @Override
   public void onEnable() {
@@ -67,9 +67,9 @@ public class HShopPlugin extends JavaPlugin {
     shopManager = new ShopManager(this);
 
     databaseManager.loadDatabase();
-    
+
     if (!setupEconomy()) {
-      console.sendMessage(Lang.PREFIX + Lang.FAILVAULT.toString());
+      getConsole().sendMessage(Lang.PREFIX + Lang.FAILVAULT.toString());
       getServer().getPluginManager().disablePlugin(this);
       return;
     }
@@ -84,27 +84,27 @@ public class HShopPlugin extends JavaPlugin {
 
     getConfig().options().copyDefaults(true);
     saveConfig();
-
-    LangName = getConfig().getString("Language.language-name");
+    
+    langName = getConfig().getString("Language.language-name");
 
     loadLang();
-    
+
     shopadminCommand = new ShopAdminCommand(this);
     getCommand("hshopadmin").setExecutor(shopadminCommand);
     getCommand("hshopadmin").setPermissionMessage(Lang.NOPERMISSION.toString());
-    
+
     shopconvertCommand = new ShopConvertCommand(this);
     getCommand("hshopconvert").setExecutor(shopconvertCommand);
     getCommand("hshopconvert").setPermissionMessage(Lang.NOPERMISSION.toString());
-    
+
     shopreloadCommand = new ShopReloadCommand(this);
     getCommand("hshopreload").setExecutor(shopreloadCommand);
     getCommand("hshopreload").setPermissionMessage(Lang.NOPERMISSION.toString());
-    
+
     shopCommand = new ShopCommand(this);
     getCommand("hshop").setExecutor(shopCommand);
     getCommand("hshop").setPermissionMessage(Lang.NOPERMISSION.toString());
-    
+
     getLogger().info(Lang.PREFIX.toString() + Lang.TRYINGPOOL.toString());
     ConnectionHandler connectionHandler = databaseManager.getConnectionPool().getConnection();
     connectionHandler.release();
@@ -113,11 +113,11 @@ public class HShopPlugin extends JavaPlugin {
       Metrics metrics = new Metrics(this);
       metrics.start();
     } catch (IOException e) {
-      console.sendMessage(Lang.PREFIX + Lang.FAILMETRICS.toString());
+      getConsole().sendMessage(Lang.PREFIX + Lang.FAILMETRICS.toString());
     }
-    console.sendMessage(new String[] {
+    getConsole().sendMessage(new String[] {
         ChatColor.GOLD + "--------------------------",
-        ChatColor.YELLOW + PluginName + " " + ChatColor.GOLD + getDescription().getVersion()
+        ChatColor.YELLOW + pluginName + " " + ChatColor.GOLD + getDescription().getVersion()
             + ChatColor.GREEN + " by " + ChatColor.GOLD + getDescription().getAuthors()
             + ChatColor.GREEN + " is now enable.", ChatColor.GOLD + "--------------------------"});
   }
@@ -125,11 +125,24 @@ public class HShopPlugin extends JavaPlugin {
   @Override
   public void onDisable() {
     databaseManager.getConnectionPool().closeConnections();
-    console.sendMessage(new String[] {
+    getConsole().sendMessage(new String[] {
         ChatColor.GOLD + "--------------------------",
-        ChatColor.YELLOW + PluginName + " " + ChatColor.GOLD + getDescription().getVersion()
+        ChatColor.YELLOW + pluginName + " " + ChatColor.GOLD + getDescription().getVersion()
             + ChatColor.GREEN + " by " + ChatColor.GOLD + getDescription().getAuthors()
             + ChatColor.RED + " is now disable.", ChatColor.GOLD + "--------------------------"});
+  }
+  
+  private boolean setupEconomy() {
+    if (getServer().getPluginManager().getPlugin("Vault") == null) {
+      return false;
+    }
+    RegisteredServiceProvider<Economy> rsp =
+        getServer().getServicesManager().getRegistration(Economy.class);
+    if (rsp == null) {
+      return false;
+    }
+    econ = rsp.getProvider();
+    return econ != null;
   }
 
   public Economy getEconomy() {
@@ -146,48 +159,42 @@ public class HShopPlugin extends JavaPlugin {
 
   public DatabaseManager getDatabaseManager() {
     return databaseManager;
+  
+  }
+  
+  public ArrayList<Player> getPlace() {
+    return place;
   }
 
-  public boolean isDouble(String value) {
-    try {
-      Double.parseDouble(value);
-      return true;
-    } catch (Exception ex) {
-      return false;
-    }
+  public void setPlace(ArrayList<Player> place) {
+    this.place = place;
+  }
+  
+  public ConsoleCommandSender getConsole() {
+    return console;
   }
 
-  public boolean isInteger(String s) {
-    try {
-      Integer.parseInt(s);
-      return true;
-    } catch (Exception ex) {
-      return false;
-    }
+  public void setConsole(ConsoleCommandSender console) {
+    this.console = console;
+  }
+  
+  public YamlConfiguration getLang() {
+    return LANG;
   }
 
-  private boolean setupEconomy() {
-    if (getServer().getPluginManager().getPlugin("Vault") == null) {
-      return false;
-    }
-    RegisteredServiceProvider<Economy> rsp =
-        getServer().getServicesManager().getRegistration(Economy.class);
-    if (rsp == null) {
-      return false;
-    }
-    econ = rsp.getProvider();
-    return econ != null;
+  public File getLangFile() {
+    return LANG_FILE;
   }
 
   public YamlConfiguration loadLang() {
-    File lang = new File(getDataFolder(), "lang_" + LangName + ".yml");
+    File lang = new File(getDataFolder(), "lang_" + langName + ".yml");
     if (!lang.exists()) {
       try {
-        console.sendMessage(ChatColor.RED + "[HShop] lang_" + LangName
+        console.sendMessage(ChatColor.RED + "[HShop] lang_" + langName
             + ".yml does not exist. Creating...");
         getDataFolder().mkdir();
         lang.createNewFile();
-        InputStream defConfigStream = this.getResource("lang_" + LangName + ".yml");
+        InputStream defConfigStream = this.getResource("lang_" + langName + ".yml");
         if (defConfigStream != null) {
           YamlConfiguration defConfig =
               YamlConfiguration.loadConfiguration(new InputStreamReader(defConfigStream));
@@ -209,26 +216,18 @@ public class HShopPlugin extends JavaPlugin {
       }
     }
     Lang.setFile(conf);
-    HShopPlugin.LANG = conf;
-    HShopPlugin.LANG_FILE = lang;
+    LANG = conf;
+    LANG_FILE = lang;
     try {
       conf.save(getLangFile());
     } catch (IOException e) {
-      console.sendMessage(ChatColor.RED + "[HShop] Failed to save " + "lang_" + LangName + ".yml");
+      console.sendMessage(ChatColor.RED + "[HShop] Failed to save " + "lang_" + langName + ".yml");
       console.sendMessage(ChatColor.RED + "[HShop] Report this stack trace to keke142.");
       e.printStackTrace();
     }
     return conf;
   }
-
-  public YamlConfiguration getLang() {
-    return LANG;
-  }
-
-  public File getLangFile() {
-    return LANG_FILE;
-  }
-
+  
   /**
    * Create a default configuration file from the .jar.
    * 
