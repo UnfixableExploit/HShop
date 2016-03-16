@@ -20,12 +20,14 @@ public class ShopPlaceListener implements Listener {
     this.plugin = instance;
     this.shopManager = plugin.getShopManager();
   }
+  
+  private static final String shopPrefix = "[HShop]";
 
   @EventHandler
   public void onShopPlace(SignChangeEvent e) throws IOException {
 
     Player p = e.getPlayer();
-    if (e.getLine(0).equalsIgnoreCase("[HShop]")) {
+    if (e.getLine(0).equalsIgnoreCase(shopPrefix)) {
       String[] line2split = e.getLine(1).split("/");
       String buy = line2split[0];
       if (!e.getLine(1).contains(buy)) {
@@ -74,14 +76,14 @@ public class ShopPlaceListener implements Listener {
         p.sendMessage(Lang.PREFIX.toString() + Lang.NOUSECHAR);
         return;
       }
-      if (plugin.isDouble(buy) == false) {
+      if (isDouble(buy) == false) {
         e.getBlock().breakNaturally();
         p.sendMessage(Lang.PREFIX.toString() + Lang.USEINTORDOUBLEB);
         return;
 
 
       }
-      if (plugin.isDouble(sell) == false) {
+      if (isDouble(sell) == false) {
         e.getBlock().breakNaturally();
         p.sendMessage(Lang.PREFIX.toString() + Lang.USEINTORDOUBLES);
         return;
@@ -89,7 +91,7 @@ public class ShopPlaceListener implements Listener {
 
       String by = e.getLine(2);
 
-      if (plugin.isInteger(by) == false) {
+      if (isInteger(by) == false) {
         e.getBlock().breakNaturally();
         p.sendMessage(Lang.PREFIX.toString() + Lang.DEFINEQUANTITY);
         return;
@@ -108,6 +110,24 @@ public class ShopPlaceListener implements Listener {
               .replaceAll("%y", Integer.toString(b.getBlockY()))
               .replaceAll("%z", Integer.toString(b.getBlockZ()))
               .replaceAll("%world", b.getWorld().getName()));
+    }
+  }
+
+  private boolean isDouble(String value) {
+    try {
+      Double.parseDouble(value);
+      return true;
+    } catch (Exception ex) {
+      return false;
+    }
+  }
+
+  private boolean isInteger(String s) {
+    try {
+      Integer.parseInt(s);
+      return true;
+    } catch (Exception ex) {
+      return false;
     }
   }
 }
