@@ -37,6 +37,12 @@ public class ShopDestroyListener implements Listener {
     if (!p.hasPermission("hshop.create")) {
       return;
     }
+    if (!p.getUniqueId().toString().equals(shop.getPlayerUuid())) {
+      e.setCancelled(true);
+      Bukkit.broadcastMessage("Invalid UUID: " + p.getUniqueId().toString() + " " + shop.getPlayerUuid());
+      return;
+    }
+    
     shopManager.destroyShop(shop);
     e.getPlayer().sendMessage(
         Lang.PREFIX.toString()
