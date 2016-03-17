@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -15,7 +14,6 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,6 +29,7 @@ import fr.keke142.hshop.listeners.ShopDestroyListener;
 import fr.keke142.hshop.listeners.ShopPlaceListener;
 import fr.keke142.hshop.listeners.ShopSellListener;
 import fr.keke142.hshop.listeners.ShopWithdrawListener;
+import fr.keke142.hshop.managers.LangManager;
 import fr.keke142.hshop.managers.ShopManager;
 import fr.keke142.hshop.managers.ConfigManager;
 import fr.keke142.hshop.managers.DatabaseManager;
@@ -40,6 +39,7 @@ public class HShopPlugin extends JavaPlugin {
   private ConfigManager configManager;
   private ShopManager shopManager;
   private DatabaseManager databaseManager;
+  private LangManager langManager;
 
   private ShopAdminCommand shopadminCommand;
   private ShopReloadCommand shopreloadCommand;
@@ -49,15 +49,9 @@ public class HShopPlugin extends JavaPlugin {
   private Economy econ;
 
   private String pluginName = getDescription().getName();
-
   private ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
 
   private ArrayList<Player> place = new ArrayList<Player>();
-  
-  private String langName;
-  
-  private YamlConfiguration LANG;
-  private File LANG_FILE;
 
   @Override
   public void onEnable() {
@@ -65,8 +59,15 @@ public class HShopPlugin extends JavaPlugin {
     configManager = new ConfigManager(this);
     databaseManager = new DatabaseManager(this);
     shopManager = new ShopManager(this);
-
+    langManager = new LangManager(this);
+    
+    
     databaseManager.loadDatabase();
+    
+    getConfig().options().copyDefaults(true);
+    saveConfig();
+
+    langManager.loadLang();
 
     if (!setupEconomy()) {
       getConsole().sendMessage(Lang.PREFIX + Lang.FAILVAULT.toString());
@@ -81,13 +82,6 @@ public class HShopPlugin extends JavaPlugin {
     Bukkit.getServer().getPluginManager().registerEvents(new ShopWithdrawListener(this), this);
     Bukkit.getServer().getPluginManager().registerEvents(new ShopBuyListener(this), this);
     Bukkit.getServer().getPluginManager().registerEvents(new ShopSellListener(this), this);
-
-    getConfig().options().copyDefaults(true);
-    saveConfig();
-    
-    langName = getConfig().getString("Language.language-name");
-
-    loadLang();
 
     shopadminCommand = new ShopAdminCommand(this);
     getCommand("hshopadmin").setExecutor(shopadminCommand);
@@ -156,6 +150,10 @@ public class HShopPlugin extends JavaPlugin {
   public ShopManager getShopManager() {
     return shopManager;
   }
+  
+  public LangManager getLangManager() {
+    return langManager;
+  }
 
   public DatabaseManager getDatabaseManager() {
     return databaseManager;
@@ -176,56 +174,6 @@ public class HShopPlugin extends JavaPlugin {
 
   public void setConsole(ConsoleCommandSender console) {
     this.console = console;
-  }
-  
-  public YamlConfiguration getLang() {
-    return LANG;
-  }
-
-  public File getLangFile() {
-    return LANG_FILE;
-  }
-
-  public YamlConfiguration loadLang() {
-    File lang = new File(getDataFolder(), "lang_" + langName + ".yml");
-    if (!lang.exists()) {
-      try {
-        console.sendMessage(ChatColor.RED + "[HShop] lang_" + langName
-            + ".yml does not exist. Creating...");
-        getDataFolder().mkdir();
-        lang.createNewFile();
-        InputStream defConfigStream = this.getResource("lang_" + langName + ".yml");
-        if (defConfigStream != null) {
-          YamlConfiguration defConfig =
-              YamlConfiguration.loadConfiguration(new InputStreamReader(defConfigStream));
-          defConfig.save(lang);
-          Lang.setFile(defConfig);
-          return defConfig;
-        }
-      } catch (IOException e) {
-        e.printStackTrace();
-        console.sendMessage(ChatColor.RED + "[HShop] Couldn't create language file.");
-        console.sendMessage(ChatColor.RED + "[HShop] This is a fatal error. Now disabling");
-        setEnabled(false);
-      }
-    }
-    YamlConfiguration conf = YamlConfiguration.loadConfiguration(lang);
-    for (Lang item : Lang.values()) {
-      if (conf.getString(item.getPath()) == null) {
-        conf.set(item.getPath(), item.getDefault());
-      }
-    }
-    Lang.setFile(conf);
-    LANG = conf;
-    LANG_FILE = lang;
-    try {
-      conf.save(getLangFile());
-    } catch (IOException e) {
-      console.sendMessage(ChatColor.RED + "[HShop] Failed to save " + "lang_" + langName + ".yml");
-      console.sendMessage(ChatColor.RED + "[HShop] Report this stack trace to keke142.");
-      e.printStackTrace();
-    }
-    return conf;
   }
   
   /**
