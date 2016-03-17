@@ -140,9 +140,22 @@ public class ShopDepositListener implements Listener {
       }
 
 
+      ItemStack stack = HcGson.deserializeItemStack(shop.getItemSerialized());
       if (p.isSneaking()) {
         shop.addItem(p.getInventory().getItemInMainHand().getAmount());
         p.getInventory().setItemInMainHand(null);
+        
+        p.sendMessage(Lang.PREFIX
+            + Lang.SHOPDEPOSIT
+                .toString()
+                .replaceAll("%number", "All")
+                .replaceAll("%item", "" + stack.getType())
+                .replaceAll("%data", "" + stack.getData().getData())
+                .replaceAll(
+                    "%name",
+                    stack.getItemMeta().hasDisplayName() ? stack.getItemMeta().getDisplayName()
+                        : "No Name").replaceAll("%durability", "" + stack.getDurability())
+                .replaceAll("%enchants", "" + stack.getEnchantments()));
 
       } else {
         shop.addItem();
@@ -151,24 +164,24 @@ public class ShopDepositListener implements Listener {
         } else {
           p.getInventory().setItemInMainHand(null);
         }
+        
+        p.sendMessage(Lang.PREFIX
+            + Lang.SHOPDEPOSIT
+                .toString()
+                .replaceAll("%number", "" + shop.getUnitAmount())
+                .replaceAll("%item", "" + stack.getType())
+                .replaceAll("%data", "" + stack.getData().getData())
+                .replaceAll(
+                    "%name",
+                    stack.getItemMeta().hasDisplayName() ? stack.getItemMeta().getDisplayName()
+                        : "No Name").replaceAll("%durability", "" + stack.getDurability())
+                .replaceAll("%enchants", "" + stack.getEnchantments()));
 
       }
 
       shop.setPlayerName(p.getName());
       shopManager.saveShopItemCountAndPlayerName(shop);
 
-      ItemStack stack = HcGson.deserializeItemStack(shop.getItemSerialized());
-      p.sendMessage(Lang.PREFIX
-          + Lang.SHOPDEPOSIT
-              .toString()
-              .replaceAll("%number", "" + shop.getUnitAmount())
-              .replaceAll("%item", "" + stack.getType())
-              .replaceAll("%data", "" + stack.getData().getData())
-              .replaceAll(
-                  "%name",
-                  stack.getItemMeta().hasDisplayName() ? stack.getItemMeta().getDisplayName()
-                      : "No Name").replaceAll("%durability", "" + stack.getDurability())
-              .replaceAll("%enchants", "" + stack.getEnchantments()));
       return;
     }
   }
