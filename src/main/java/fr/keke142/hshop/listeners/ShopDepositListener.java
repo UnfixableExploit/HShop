@@ -44,9 +44,6 @@ public class ShopDepositListener implements Listener {
     }
 
     final Player p = e.getPlayer();
-    if (!p.hasPermission("hshop.manage")) {
-      return;
-    }
 
     final ItemStack handStack = p.getInventory().getItemInMainHand();
     if (handStack.getType() == Material.AIR) {
@@ -58,6 +55,12 @@ public class ShopDepositListener implements Listener {
     if (shop == null) {
       return;
     }
+
+    if (!p.hasPermission("hshop.manage")) {
+      p.sendMessage(Lang.PREFIX.toString() + Lang.NOPERMISSION.toString());
+      return;
+    }
+
 
     if (shop.isItemSerialized() && shop.getAdmin()) {
       return;
@@ -73,12 +76,12 @@ public class ShopDepositListener implements Listener {
       return;
     }
 
-    plugin.place.add(p);
+    plugin.getPlace().add(p);
     new BukkitRunnable() {
 
       @Override
       public void run() {
-        plugin.place.remove(p);
+        plugin.getPlace().remove(p);
       }
 
     }.runTaskLater(this.plugin, 10);
@@ -172,12 +175,12 @@ public class ShopDepositListener implements Listener {
 
   @EventHandler
   public void onPlayerJoin(PlayerJoinEvent e) {
-    plugin.place.remove(e.getPlayer());
+    plugin.getPlace().remove(e.getPlayer());
   }
 
   @EventHandler
   public void onBlockPlace(BlockPlaceEvent e) {
-    if (plugin.place.contains(e.getPlayer())) {
+    if (plugin.getPlace().contains(e.getPlayer())) {
       e.setCancelled(true);
     }
   }

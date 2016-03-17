@@ -48,10 +48,6 @@ public class ShopSellListener implements Listener {
     }
 
     final Player p = e.getPlayer();
-    if (!p.hasPermission("hshop.sell")) {
-      return;
-    }
-
     final ItemStack handStack = p.getInventory().getItemInMainHand();
     if (handStack.getType() == Material.AIR) {
       return;
@@ -63,12 +59,17 @@ public class ShopSellListener implements Listener {
       return;
     }
 
+    if (!p.hasPermission("hshop.sell")) {
+      p.sendMessage(Lang.PREFIX.toString() + Lang.NOPERMISSION.toString());
+      return;
+    }
+
     if (shop.getAdmin() == false) {
       if (p.getUniqueId().toString().contentEquals(shop.getPlayerUuid())) {
         return;
       }
     }
-    
+
     final ItemStack shopStackSell = handStack.clone();
     shopStackSell.setAmount(shop.getUnitAmount());
     String itemSerialized = HcGson.serializeItemStack(shopStackSell);
@@ -87,13 +88,13 @@ public class ShopSellListener implements Listener {
               .replaceAll("%enchants", "" + stack.getEnchantments()));
       return;
     }
-    
-    plugin.place.add(p);
+
+    plugin.getPlace().add(p);
     new BukkitRunnable() {
 
       @Override
       public void run() {
-        plugin.place.remove(p);
+        plugin.getPlace().remove(p);
       }
 
     }.runTaskLater(this.plugin, 10);
@@ -186,12 +187,12 @@ public class ShopSellListener implements Listener {
 
   @EventHandler
   public void onPlayerJoin(PlayerJoinEvent e) {
-    plugin.place.remove(e.getPlayer());
+    plugin.getPlace().remove(e.getPlayer());
   }
 
   @EventHandler
   public void onBlockPlace(BlockPlaceEvent e) {
-    if (plugin.place.contains(e.getPlayer())) {
+    if (plugin.getPlace().contains(e.getPlayer())) {
       e.setCancelled(true);
     }
   }
