@@ -8,12 +8,16 @@ import org.bukkit.event.Listener;
 
 import fr.keke142.hshop.HShopPlugin;
 import fr.keke142.hshop.Lang;
+import fr.keke142.hshop.managers.LangManager;
 
 public class ShopReloadCommand implements Listener, CommandExecutor {
     HShopPlugin plugin;
+    private LangManager langManager;
 
     public ShopReloadCommand(HShopPlugin instance) {
         this.plugin = instance;
+        this.langManager = plugin.getLangManager();
+        
     }
 
     @Override
@@ -21,7 +25,7 @@ public class ShopReloadCommand implements Listener, CommandExecutor {
         if (cmd.getName().equalsIgnoreCase("hshopreload")) {
             Player p = (Player) sender;
             plugin.reloadConfig();
-            plugin.loadLang();
+            langManager.loadLang();
             p.sendMessage(Lang.PREFIX.toString() + Lang.SHOPRELOAD.toString());
 
         }
