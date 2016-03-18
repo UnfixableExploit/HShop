@@ -16,8 +16,6 @@ import java.util.Map.Entry;
 
 public class HcGson {
   
-  //https://gist.github.com/RingOfStorms/8a06f895250d6cec9c87
-  
   private final static String CLASS_KEY = "SERIAL-ADAPTER-CLASS-KEY";
 
   private final static Gson gson;
